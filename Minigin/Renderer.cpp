@@ -3,49 +3,98 @@
 #include <SDL.h>
 #include "SceneManager.h"
 #include "Texture2D.h"
+#include <SDL_ttf.h>
+#include "ResourceManager.h"
+#include "Font.h"
 
-void dae::Renderer::Init(SDL_Window * window)
+void Renderer::Init(SDL_Window * window)
 {
-	m_Renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (m_Renderer == nullptr) 
+	m_pRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (m_pRenderer == nullptr) 
 	{
 		throw std::runtime_error(std::string("SDL_CreateRenderer Error: ") + SDL_GetError());
 	}
 }
 
-void dae::Renderer::Render() const
+void Renderer::Render() const
 {
-	SDL_RenderClear(m_Renderer);
+	SDL_RenderClear(m_pRenderer);
 
 	SceneManager::GetInstance().Render();
 	
-	SDL_RenderPresent(m_Renderer);
+	SDL_RenderPresent(m_pRenderer);
 }
 
-void dae::Renderer::Destroy()
+void Renderer::Destroy()
 {
-	if (m_Renderer != nullptr)
+	if (m_pRenderer != nullptr)
 	{
-		SDL_DestroyRenderer(m_Renderer);
-		m_Renderer = nullptr;
+		SDL_DestroyRenderer(m_pRenderer);
+		m_pRenderer = nullptr;
 	}
 }
 
-void dae::Renderer::RenderTexture(const Texture2D& texture, const float x, const float y) const
+void Renderer::DrawDebug(const Vector2& pos, unsigned int id) const
 {
-	SDL_Rect dst;
-	dst.x = static_cast<int>(x);
-	dst.y = static_cast<int>(y);
-	SDL_QueryTexture(texture.GetSDLTexture(), nullptr, nullptr, &dst.w, &dst.h);
-	SDL_RenderCopy(GetSDLRenderer(), texture.GetSDLTexture(), nullptr, &dst);
+	DrawPoint(pos);
+	SDL_Surface* pSurface = TTF_RenderText_Blended(ResourceManager::GetInstance().LoadFont("Lingua.otf", 24)->GetFont(), std::to_string(id).c_str(),
+		SDL_Color{ 255,255,255,255 });
+	if (pSurface == nullptr)
+	{
+		throw std::runtime_error(std::string("Render text failed: ") + SDL_GetError());
+	}
+	SDL_Texture* pTexture = SDL_CreateTextureFromSurface(Renderer::GetInstance().GetSDLRenderer(), pSurface);
+	if (pTexture == nullptr)
+	{
+		throw std::runtime_error(std::string("Create text texture from surface failed: ") + SDL_GetError());
+	}
+	SDL_FreeSurface(pSurface);
+	RenderTexture(pTexture, pos);
+	SDL_DestroyTexture(pTexture);
 }
 
-void dae::Renderer::RenderTexture(const Texture2D& texture, const float x, const float y, const float width, const float height) const
+void Renderer::DrawPoint(float x, float y, RGBAColour colour) const
+{
+	SDL_SetRenderDrawColor(m_pRenderer, colour.r, colour.g, colour.b, colour.a);
+	SDL_RenderDrawPoint(m_pRenderer, std::move((int)x), std::move((int)y));
+	SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 0, 1);
+}
+
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float angle, SDL_RendererFlip flip) const
+{
+	int w, h;
+	SDL_QueryTexture(pTexture, nullptr, nullptr, &w, &h);
+	RenderTexture(pTexture, std::move(x), std::move(y), std::move((float)w), std::move((float)h), std::move(angle), flip);
+}
+
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float angle, SDL_RendererFlip flip) const
 {
 	SDL_Rect dst;
-	dst.x = static_cast<int>(x);
-	dst.y = static_cast<int>(y);
-	dst.w = static_cast<int>(width);
-	dst.h = static_cast<int>(height);
-	SDL_RenderCopy(GetSDLRenderer(), texture.GetSDLTexture(), nullptr, &dst);
+	dst.x = std::move((int)x);
+	dst.y = std::move((int)y);
+	dst.w = std::move((int)width);
+	dst.h = std::move((int)height);
+	SDL_RenderCopyEx(m_pRenderer, pTexture, nullptr, &dst, angle, nullptr, flip);
+}
+
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float srcX, float srcY, float angle, SDL_RendererFlip flip) const
+{
+	int w, h;
+	SDL_QueryTexture(pTexture, nullptr, nullptr, &w, &h);
+	RenderTexture(pTexture, std::move(x), std::move(y), std::move(width), std::move(height), std::move(srcX), std::move(srcY), std::move((float)w), std::move((float)h), std::move(angle), flip);
+}
+
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float srcX, float srcY, float srcW, float srcH, float angle, SDL_RendererFlip flip) const
+{
+	SDL_Rect dst;
+	dst.x = std::move((int)x);
+	dst.y = std::move((int)y);
+	dst.w = std::move((int)width);
+	dst.h = std::move((int)height);
+	SDL_Rect src;
+	src.x = std::move((int)srcX);
+	src.y = std::move((int)srcY);
+	src.w = std::move((int)srcW);
+	src.h = std::move((int)srcH);
+	SDL_RenderCopyEx(m_pRenderer, pTexture, &src, &dst, angle, nullptr, flip);
 }

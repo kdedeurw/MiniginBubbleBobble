@@ -5,10 +5,24 @@
 #include <SDL_ttf.h>
 
 #include "Renderer.h"
+#include "GlobalMemoryPools.h"
 #include "Texture2D.h"
 #include "Font.h"
 
-void dae::ResourceManager::Init(const std::string& dataPath)
+ResourceManager::~ResourceManager()
+{
+	////delete SDL_Object*'s
+	//for (auto& it : m_Textures)
+	//{
+	//	SDL_DestroyTexture(it.second->GetSDLTexture());
+	//}
+	//for (auto& it : m_Fonts)
+	//{
+	//	TTF_CloseFont(it.second->GetFont());
+	//}
+}
+
+void ResourceManager::Init(const std::string& dataPath)
 {
 	m_DataPath = dataPath;
 
@@ -30,18 +44,45 @@ void dae::ResourceManager::Init(const std::string& dataPath)
 	}
 }
 
-std::shared_ptr<dae::Texture2D> dae::ResourceManager::LoadTexture(const std::string& file) const
+Texture2D* ResourceManager::LoadTexture(const std::string& file)
 {
-	const auto fullPath = m_DataPath + file;
-	auto texture = IMG_LoadTexture(Renderer::GetInstance().GetSDLRenderer(), fullPath.c_str());
+	//search whether the texture already exists
+	const auto it = m_Textures.find(file);
+	if (it != m_Textures.end())
+		return it->second;
+
+	//if not, create a new texture and store it
+	const std::string fullPath = m_DataPath + file;
+	SDL_Texture* texture = IMG_LoadTexture(Renderer::GetInstance().GetSDLRenderer(), fullPath.c_str());
 	if (texture == nullptr) 
 	{
 		throw std::runtime_error(std::string("Failed to load texture: ") + SDL_GetError());
 	}
-	return std::make_shared<Texture2D>(texture);
+	return m_Textures[file] = GlobalMemoryPools::GetInstance().CreateTexture2D(texture);
+	//can either manage own memory (copying pointers during init of a scene) or have a table of textures (like the above)
 }
 
-std::shared_ptr<dae::Font> dae::ResourceManager::LoadFont(const std::string& file, unsigned int size) const
+Font* ResourceManager::LoadFont(const std::string& file, unsigned int size)
 {
-	return std::make_shared<Font>(m_DataPath + file, size);
+	const auto it = m_Fonts.find(file);
+	//if font exists
+	if (it != m_Fonts.end())
+	{
+		//with same size
+		if (size == it->second->GetSize())
+			return it->second;
+		//or not
+		else
+		{
+			//search for unique font
+			const std::string newName = file + std::to_string(size);
+			const auto itSize = m_Fonts.find(newName);
+			if (itSize != m_Fonts.end())
+				return it->second;
+			//or simply create new one
+			return m_Fonts[newName] = GlobalMemoryPools::GetInstance().CreateOwnFont(m_DataPath + file, size);
+		}
+	}
+	//if not, create new font
+	return m_Fonts[file] = GlobalMemoryPools::GetInstance().CreateOwnFont(m_DataPath + file, size);
 }
