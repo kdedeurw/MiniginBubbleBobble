@@ -1,33 +1,45 @@
 #include "MiniginPCH.h"
 #include "Scene.h"
+#include "TextObject.h"
 #include "GameObject.h"
-
-using namespace dae;
+#include "GlobalMemoryPools.h"
+#include "MemoryAllocator.h"
 
 unsigned int Scene::m_IdCounter = 0;
 
-Scene::Scene(const std::string& name) : m_Name(name) {}
+Scene::Scene(std::string name)
+	: m_Name{ std::move(name) }
+	, m_pObjects{}
+{}
 
-Scene::~Scene() = default;
-
-void Scene::Add(const std::shared_ptr<SceneObject>& object)
+Scene::~Scene()
 {
-	m_Objects.push_back(object);
+	for (SceneObject* pObject : m_pObjects)
+	{
+		delete pObject;
+	}
+	m_pObjects.clear();
+}
+
+void Scene::AddObject(SceneObject* pObject)
+{
+	m_pObjects.push_back(pObject);
+	//TODO: fix ID for child objects
+	//TODO: reject child objects
 }
 
 void Scene::Update()
 {
-	for(auto& object : m_Objects)
+	for(SceneObject* pObject : m_pObjects)
 	{
-		object->Update();
+		pObject->Update();
 	}
 }
 
 void Scene::Render() const
 {
-	for (const auto& object : m_Objects)
+	for (SceneObject* pObject : m_pObjects)
 	{
-		object->Render();
+		pObject->Render();
 	}
 }
-

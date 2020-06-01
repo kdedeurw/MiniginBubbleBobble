@@ -1,26 +1,41 @@
 #include "MiniginPCH.h"
 #include "SceneManager.h"
 #include "Scene.h"
+#include "GameState.h"
+#include "MemoryAllocator.h"
 
-void dae::SceneManager::Update()
+SceneManager::SceneManager()
+	: m_pScenes{}
+{}
+
+SceneManager::~SceneManager()
 {
-	for(auto& scene : m_Scenes)
+	for (Scene* pScene : m_pScenes)
 	{
-		scene->Update();
+		delete pScene;
+	}
+	m_pScenes.clear();
+}
+
+void SceneManager::Update()
+{
+	for(Scene* pScene : m_pScenes)
+	{
+		pScene->Update();
 	}
 }
 
-void dae::SceneManager::Render()
+void SceneManager::Render() const
 {
-	for (const auto& scene : m_Scenes)
+	for (const Scene* pScene : m_pScenes)
 	{
-		scene->Render();
+		pScene->Render();
 	}
 }
 
-dae::Scene& dae::SceneManager::CreateScene(const std::string& name)
+Scene& SceneManager::CreateScene(const std::string& name)
 {
-	const auto scene = std::shared_ptr<Scene>(new Scene(name));
-	m_Scenes.push_back(scene);
-	return *scene;
+	Scene* pScene = GlobalMemoryPools::GetInstance().CreateScene(name.c_str());
+	m_pScenes.push_back(pScene);
+	return *pScene;
 }

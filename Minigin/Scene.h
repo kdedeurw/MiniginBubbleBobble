@@ -1,31 +1,31 @@
 #pragma once
-#include "SceneManager.h"
+#include "GlobalMemoryPools.h"
 
-namespace dae
+class SceneObject;
+class GameObject;
+class TextObject;
+class Scene
 {
-	class SceneObject;
-	class Scene
-	{
-		friend Scene& SceneManager::CreateScene(const std::string& name);
-	public:
-		void Add(const std::shared_ptr<SceneObject>& object);
+public:
+	virtual ~Scene();
+	Scene(const Scene& other) = delete;
+	Scene(Scene&& other) = delete;
+	Scene& operator=(const Scene& other) = delete;
+	Scene& operator=(Scene&& other) = delete;
 
-		void Update();
-		void Render() const;
+	void AddObject(SceneObject* pObject);
 
-		~Scene();
-		Scene(const Scene& other) = delete;
-		Scene(Scene&& other) = delete;
-		Scene& operator=(const Scene& other) = delete;
-		Scene& operator=(Scene&& other) = delete;
+	void Update();
+	void Render() const;
 
-	private: 
-		explicit Scene(const std::string& name);
+protected:
+	//friend Scene* GlobalMemoryPools::CreateScene(const std::string& name);
+	friend class GlobalMemoryPools;
+	explicit Scene(std::string name);
 
-		std::string m_Name;
-		std::vector < std::shared_ptr<SceneObject>> m_Objects{};
+	std::string m_Name;
+	std::vector<SceneObject*> m_pObjects;
 
-		static unsigned int m_IdCounter; 
-	};
-
-}
+private:
+	static unsigned int m_IdCounter;
+};
