@@ -1,28 +1,56 @@
 #pragma once
 #include "Transform.h"
 #include "SceneObject.h"
+#include <vector>
+#include "Component.h"
+#include "Scene.h"
 
-namespace dae
+class Transform;
+class GameState;
+class Texture2D;
+class GameObject final : public SceneObject
 {
-	class Texture2D;
-	class GameObject : public SceneObject
+public:
+	GameObject(Transform& transform);
+	virtual ~GameObject();
+	GameObject(const GameObject & other) = delete;
+	GameObject(GameObject && other) = delete;
+	GameObject& operator=(const GameObject & other) = delete;
+	GameObject& operator=(GameObject && other) = delete;
+
+	void Initialize() override;
+	void Update() override;
+	void Render() const override;
+	void DrawDebug() const override;
+
+	Transform& GetTransform() { return m_Transform; };
+	GameObject& GetParent() { return *m_pParent; };
+
+	void AddComponent(Component* pComponent);
+	template <typename T>
+	T* GetComponent() const;
+	void RemoveComponent(Component* pComponent);
+
+	void AddChildObject(GameObject* pChild);
+	std::vector<GameObject*>& GetChildren() { return m_pChildren; };
+	void RemoveChildObject(GameObject* pChild);
+
+private:
+	GameObject* m_pParent;
+
+	std::vector<Component*> m_pComponents;
+	std::vector<GameObject*> m_pChildren;
+
+	Texture2D* m_pDebug;
+};
+
+template <typename T>
+T* GameObject::GetComponent() const
+{
+	for (Component* pComponent : m_pComponents)
 	{
-	public:
-		void Update() override;
-		void Render() const override;
-
-		void SetTexture(const std::string& filename);
-		void SetPosition(float x, float y);
-
-		GameObject() = default;
-		virtual ~GameObject();
-		GameObject(const GameObject& other) = delete;
-		GameObject(GameObject&& other) = delete;
-		GameObject& operator=(const GameObject& other) = delete;
-		GameObject& operator=(GameObject&& other) = delete;
-
-	private:
-		Transform m_Transform;
-		std::shared_ptr<Texture2D> m_Texture{};
-	};
+		if (typeid(*pComponent) == typeid(T))
+			return dynamic_cast<T*>(pComponent);
+	}
+	return nullptr;
 }

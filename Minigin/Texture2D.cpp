@@ -2,17 +2,27 @@
 #include "Texture2D.h"
 #include <SDL.h>
 
-dae::Texture2D::~Texture2D()
+Texture2D::Texture2D(SDL_Texture* pTexture)
+	: Texture{ pTexture }
+	//, m_Dimensions{}
+{}
+
+Texture2D::~Texture2D()
+{}
+
+const Vector2& Texture2D::GetDimensions() const
 {
-	SDL_DestroyTexture(m_Texture);
+	return m_Dimensions;
 }
 
-SDL_Texture* dae::Texture2D::GetSDLTexture() const
+bool Texture2D::Initialize()
 {
-	return m_Texture;
-}
-
-dae::Texture2D::Texture2D(SDL_Texture* texture)
-{
-	m_Texture = texture;
+	int width, height;
+	if (!SDL_QueryTexture(m_pTexture, nullptr, nullptr, &width, &height))
+	{
+		m_Dimensions.x = (float)width;
+		m_Dimensions.y = (float)height;
+		return true;
+	}
+	return false;
 }

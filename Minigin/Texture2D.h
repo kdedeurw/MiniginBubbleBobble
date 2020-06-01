@@ -1,22 +1,21 @@
 #pragma once
-struct SDL_Texture;
-namespace dae
-{
-	/**
-	 * Simple RAII wrapper for an SDL_Texture
-	 */
-	class Texture2D
-	{
-	public:
-		SDL_Texture* GetSDLTexture() const;
-		explicit Texture2D(SDL_Texture* texture);
-		~Texture2D();
+#include "Texture.h"
+#include "Math.h"
 
-		Texture2D(const Texture2D &) = delete;
-		Texture2D(Texture2D &&) = delete;
-		Texture2D & operator= (const Texture2D &) = delete;
-		Texture2D & operator= (const Texture2D &&) = delete;
-	private:
-		SDL_Texture* m_Texture;
-	};
-}
+class Texture2D : public Texture
+{
+public:
+	explicit Texture2D(SDL_Texture* pTexture);
+	virtual ~Texture2D();
+	Texture2D(const Texture2D &) = delete;
+	Texture2D(Texture2D &&) = delete;
+	Texture2D & operator= (const Texture2D &) = delete;
+	Texture2D & operator= (const Texture2D &&) = delete;
+
+	const Vector2& GetDimensions() const;
+
+	bool Initialize();
+
+private:
+	Vector2 m_Dimensions;
+};
