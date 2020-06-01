@@ -1,42 +1,68 @@
 #include "MiniginPCH.h"
 #include "InputManager.h"
-#include <SDL.h>
 
+#include "Commands.h"
 
-bool dae::InputManager::ProcessInput()
+InputManager::InputManager()
 {
-	ZeroMemory(&m_CurrentState, sizeof(XINPUT_STATE));
-	XInputGetState(0, &m_CurrentState);
-
-	SDL_Event e;
-	while (SDL_PollEvent(&e)) {
-		if (e.type == SDL_QUIT) {
-			return false;
-		}
-		if (e.type == SDL_KEYDOWN) {
-			
-		}
-		if (e.type == SDL_MOUSEBUTTONDOWN) {
-			
-		}
-	}
-
-	return true;
+	m_pMove = new MoveCommand{};
+	m_pSprint = new SprintCommand{};
+	m_pLook = new LookCommand{};
+	m_pKnifeLunge = new KnifeLunge{};
+	m_pJump = new JumpCommand{};
+	m_pReload = new ReloadCommand{};
+	m_pProne = new ProneCommand{};
+	m_pSwapWeapons = new SwapWeaponsCommand{};
+	m_pMenu = new MenuCommand{};
+	m_pMap = new MapCommand{};
+	m_pAim = new AimCommand{};
+	m_pEquipment1 = new Equipment1Command{};
+	m_pFire = new FireCommand{};
+	m_pEquipment2 = new Equipment2Command{};
 }
 
-bool dae::InputManager::IsPressed(ControllerButton button) const
+InputManager::~InputManager()
 {
-	switch (button)
-	{
-	case ControllerButton::ButtonA:
-		return m_CurrentState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
-	case ControllerButton::ButtonB:
-		return m_CurrentState.Gamepad.wButtons & XINPUT_GAMEPAD_B;
-	case ControllerButton::ButtonX:
-		return m_CurrentState.Gamepad.wButtons & XINPUT_GAMEPAD_X;
-	case ControllerButton::ButtonY:
-		return m_CurrentState.Gamepad.wButtons & XINPUT_GAMEPAD_Y;
-	default: return false;
-	}
+	if (m_pMove)
+		delete m_pMove;
+	m_pMove = nullptr;
+	if (m_pSprint)
+		delete m_pSprint;
+	m_pSprint = nullptr;
+	if (m_pLook)
+		delete m_pLook;
+	m_pLook = nullptr;
+	if (m_pKnifeLunge)
+		delete m_pKnifeLunge;
+	m_pKnifeLunge = nullptr;
+	if (m_pJump)
+		delete m_pJump;
+	m_pJump = nullptr;
+	if (m_pReload)
+		delete m_pReload;
+	m_pReload = nullptr;
+	if (m_pProne)
+		delete m_pProne;
+	m_pProne = nullptr;
+	if (m_pSwapWeapons)
+		delete m_pSwapWeapons;
+	m_pSwapWeapons = nullptr;
+	if (m_pMenu)
+		delete m_pMenu;
+	m_pMenu = nullptr;
+	if (m_pMap)
+		delete m_pMap;
+	m_pMap = nullptr;
+	if (m_pAim)
+		delete m_pAim;
+	m_pAim = nullptr;
+	if (m_pEquipment1)
+		delete m_pEquipment1;
+	m_pEquipment1 = nullptr;
+	if (m_pFire)
+		delete m_pFire;
+	m_pFire = nullptr;
+	if (m_pEquipment2)
+		delete m_pEquipment2;
+	m_pEquipment2 = nullptr;
 }
-
