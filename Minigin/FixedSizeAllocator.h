@@ -90,7 +90,7 @@ void FixedSizeAllocator<T>::Initialize(const size_t nbBytes, const size_t size, 
 
 	m_pLast = m_pPool;
 
-	for (int i{ 1 }; i < m_Size; ++i)
+	for (size_t i{ 1 }; i < m_Size; ++i)
 	{
 		m_pPool[i - 1].pNext = &m_pPool[i];
 	}

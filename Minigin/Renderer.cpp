@@ -6,6 +6,7 @@
 #include <SDL_ttf.h>
 #include "ResourceManager.h"
 #include "Font.h"
+#include "GameState.h"
 
 void Renderer::Init(SDL_Window * window)
 {
@@ -56,39 +57,39 @@ void Renderer::DrawDebug(const Vector2& pos, unsigned int id) const
 void Renderer::DrawPoint(float x, float y, RGBAColour colour) const
 {
 	SDL_SetRenderDrawColor(m_pRenderer, colour.r, colour.g, colour.b, colour.a);
-	SDL_RenderDrawPoint(m_pRenderer, std::move((int)x), std::move((int)y));
+	SDL_RenderDrawPoint(m_pRenderer, std::move((int)x), std::move(GameState::GetInstance().WindowHeight - (int)y));
 	SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 0, 1);
 }
 
-void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float angle, SDL_RendererFlip flip) const
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float angle, Flip flip) const
 {
 	int w, h;
 	SDL_QueryTexture(pTexture, nullptr, nullptr, &w, &h);
 	RenderTexture(pTexture, std::move(x), std::move(y), std::move((float)w), std::move((float)h), std::move(angle), flip);
 }
 
-void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float angle, SDL_RendererFlip flip) const
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float angle, Flip flip) const
 {
 	SDL_Rect dst;
 	dst.x = std::move((int)x);
-	dst.y = std::move((int)y);
+	dst.y = std::move(GameState::GetInstance().WindowHeight - (int)y);
 	dst.w = std::move((int)width);
 	dst.h = std::move((int)height);
-	SDL_RenderCopyEx(m_pRenderer, pTexture, nullptr, &dst, angle, nullptr, flip);
+	SDL_RenderCopyEx(m_pRenderer, pTexture, nullptr, &dst, angle, nullptr, (SDL_RendererFlip)flip);
 }
 
-void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float srcX, float srcY, float angle, SDL_RendererFlip flip) const
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float srcX, float srcY, float angle, Flip flip) const
 {
 	int w, h;
 	SDL_QueryTexture(pTexture, nullptr, nullptr, &w, &h);
 	RenderTexture(pTexture, std::move(x), std::move(y), std::move(width), std::move(height), std::move(srcX), std::move(srcY), std::move((float)w), std::move((float)h), std::move(angle), flip);
 }
 
-void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float srcX, float srcY, float srcW, float srcH, float angle, SDL_RendererFlip flip) const
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float srcX, float srcY, float srcW, float srcH, float angle, Flip flip) const
 {
 	SDL_Rect dst;
 	dst.x = std::move((int)x);
-	dst.y = std::move((int)y);
+	dst.y = std::move(GameState::GetInstance().WindowHeight - (int)y);
 	dst.w = std::move((int)width);
 	dst.h = std::move((int)height);
 	SDL_Rect src;
@@ -96,5 +97,5 @@ void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float widt
 	src.y = std::move((int)srcY);
 	src.w = std::move((int)srcW);
 	src.h = std::move((int)srcH);
-	SDL_RenderCopyEx(m_pRenderer, pTexture, &src, &dst, angle, nullptr, flip);
+	SDL_RenderCopyEx(m_pRenderer, pTexture, &src, &dst, angle, nullptr, (SDL_RendererFlip)flip);
 }

@@ -35,6 +35,11 @@ public:
 	std::vector<GameObject*>& GetChildren() { return m_pChildren; };
 	void RemoveChildObject(GameObject* pChild);
 
+	//get all child and parent calculated positions
+	Vector2 GetFinalPos() const;
+	//get all child and parent calculated transformations
+	Transform GetFinalTransform() const;
+
 private:
 	GameObject* m_pParent;
 

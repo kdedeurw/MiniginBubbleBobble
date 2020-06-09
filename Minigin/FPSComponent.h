@@ -16,7 +16,7 @@ public:
 
 	void Initialize() override {};
 	void Update() override;
-	void Render(Transform* pParentTrans = nullptr) const override;
+	void Render() const override;
 
 	void SetFont(Font* pFont);
 	unsigned int GetFPS() const;

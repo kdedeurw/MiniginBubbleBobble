@@ -5,7 +5,7 @@
 
 #include "Commands.h"
 #include <set>
-#include "Math.h"
+#include "MiniMath.h"
 
 ControllerListener::ControllerListener()
     : m_ConnectedControllers{}
@@ -404,8 +404,8 @@ void ControllerListener::SetActionBinding(Action action, Movable movable, Contro
 void ControllerListener::VibrateController(float low, float high, ControllerId id) const
 {
     XINPUT_VIBRATION vibration;
-    vibration.wLeftMotorSpeed = XINPUT_MAX_MOTOR_INPUT * (WORD)MathFunc::Clamp(high);
-    vibration.wRightMotorSpeed = XINPUT_MAX_MOTOR_INPUT * (WORD)MathFunc::Clamp(low);
+    vibration.wLeftMotorSpeed = XINPUT_MAX_MOTOR_INPUT * (WORD)MiniMathFunc::Clamp(high);
+    vibration.wRightMotorSpeed = XINPUT_MAX_MOTOR_INPUT * (WORD)MiniMathFunc::Clamp(low);
     XInputSetState(id, &vibration);
 }
 

@@ -22,7 +22,7 @@ public:
 	Component& operator=(Component&& other) = delete;
 
 	virtual void Initialize() = 0;
-	virtual void Render(Transform* pParentTrans = nullptr) const = 0;
+	virtual void Render() const = 0;
 	virtual void Update() = 0;
 
 protected:

@@ -9,7 +9,7 @@ public:
 	~Texture2DComponent();
 
 	virtual void Initialize() override;
-	virtual void Render(Transform* pParentTrans = nullptr) const override;
+	virtual void Render() const override;
 	virtual void Update() override;
 
 	//easily switch textures

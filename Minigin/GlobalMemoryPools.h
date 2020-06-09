@@ -16,6 +16,7 @@
 //TODO: removing memory run-time
 
 struct SDL_Texture;
+class Scene;
 class GlobalMemoryPools final : public SingletonRef<GlobalMemoryPools>
 {
 public:

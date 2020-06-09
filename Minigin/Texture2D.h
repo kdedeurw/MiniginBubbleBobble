@@ -1,6 +1,6 @@
 #pragma once
 #include "Texture.h"
-#include "Math.h"
+#include "MiniMath.h"
 
 class Texture2D : public Texture
 {

@@ -50,7 +50,7 @@ void GameObject::Render() const
 	{
 		for (Component* pComponent : m_pComponents)
 		{
-			pComponent->Render(&m_pParent->GetTransform());
+			pComponent->Render();
 		}
 	}
 	else
@@ -66,7 +66,7 @@ void GameObject::Render() const
 		pObject->Render();
 	}
 
-	DrawDebug();
+	//DrawDebug();
 }
 
 void GameObject::AddComponent(Component* pComponent)
@@ -104,20 +104,56 @@ void GameObject::RemoveChildObject(GameObject* pChild)
 	}
 }
 
-void GameObject::DrawDebug() const
+Vector2 GameObject::GetFinalPos() const
 {
-	Vector2 pos{ m_Transform.GetPosition() };
-	if (m_pParent)
-	{
-		const float parentRot = m_pParent->GetTransform().GetRotation() * Math::ToRadians;
+	if (!m_pParent)
+		return m_Transform.GetPosition();
+
+	Vector2 finalPos = m_Transform.GetPosition(); //vector3 : vector2
+	GameObject* pParent{ m_pParent };
+	do {
+		const float parentRot = pParent->GetTransform().GetRotation() * MiniMath::ToRadians;
 		const float sinCalc{ sinf(parentRot) };
 		const float cosCalc{ cosf(parentRot) };
-		const float newX{ pos.x * cosCalc - pos.y * sinCalc };//store new X, but don't overwrite original yet
-		pos.y = pos.y * cosCalc + pos.x * sinCalc;
-		pos.x = newX;
-		pos += m_pParent->GetTransform().GetPosition();
+		const float newX{ finalPos.x * cosCalc - finalPos.y * sinCalc };//store new X, but don't overwrite original yet
+		finalPos.y = finalPos.y * cosCalc + finalPos.x * sinCalc;
+		finalPos.x = newX;
+		finalPos += pParent->GetTransform().GetPosition();
 
-		//scale += pParentTrans->GetScale(); //inherit scale from parent?
-	}
-	Renderer::GetInstance().DrawDebug(pos, m_Id);
+		pParent = pParent->m_pParent;
+	} while (pParent);
+	return finalPos;
+}
+
+Transform GameObject::GetFinalTransform() const
+{
+	if (!m_pParent)
+		return m_Transform;
+
+	Transform finalTrans = m_Transform;
+	Vector2& finalPos{ finalTrans.GetPosition() };
+	Vector2& finalScale{ finalTrans.GetScale() };
+	float& finalRot{ finalTrans.GetRotation() };
+
+	GameObject* pParent{ m_pParent };
+	do {
+		const float parentRot = pParent->GetTransform().GetRotation() * MiniMath::ToRadians;
+		const float sinCalc{ sinf(parentRot) };
+		const float cosCalc{ cosf(parentRot) };
+		const float newX{ finalPos.x * cosCalc - finalPos.y * sinCalc };
+		finalPos.y = finalPos.y * cosCalc + finalPos.x * sinCalc;
+		finalPos.x = newX;
+
+		finalPos += pParent->GetTransform().GetPosition();
+		finalScale += pParent->GetTransform().GetScale();
+		finalRot += pParent->GetTransform().GetRotation();
+
+		pParent = pParent->m_pParent;
+	} while (pParent);
+	return finalTrans;
+}
+
+void GameObject::DrawDebug() const
+{
+	Renderer::GetInstance().DrawDebug(GetFinalPos(), m_Id);
 }

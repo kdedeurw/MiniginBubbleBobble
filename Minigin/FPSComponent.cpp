@@ -63,15 +63,10 @@ void FPSComponent::Update()
 	}
 }
 
-void FPSComponent::Render(Transform* pParentTrans) const
+void FPSComponent::Render() const
 {
-	Vector2 pos = m_pGameObject->GetTransform().GetPosition(); //vector3 : vector2
-	float rot = m_pGameObject->GetTransform().GetRotation();
-	if (pParentTrans)
-	{
-		pos += pParentTrans->GetPosition();
-		rot += pParentTrans->GetRotation();
-	}
+	const Vector2 pos = m_pGameObject->GetFinalPos();
+	const float rot = m_pGameObject->GetTransform().GetRotation();
 	if (m_pTextureData != nullptr)
 	{
 		Renderer::GetInstance().RenderTexture(m_pTextureData->GetSDLTexture(), pos.x, pos.y, rot);

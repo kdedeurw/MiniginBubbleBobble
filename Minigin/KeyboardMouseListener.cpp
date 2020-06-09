@@ -1,6 +1,7 @@
 #include "MiniginPCH.h"
 #include "KeyboardMouseListener.h"
 #include <iostream>
+#include "GameState.h"
 
 KeyboardMouseListener::KeyboardMouseListener()
 	: m_MousePos{}
@@ -170,8 +171,7 @@ void KeyboardMouseListener::HandleMouseMotionEvent(SDL_MouseMotionEvent& e)
 		m_IsMouseMoved = true;
 
 	m_MousePos.x = float(e.x);
-	m_MousePos.y = /*window.height -*/ float(e.y);
-	//TODO: fix
+	m_MousePos.y = GameState::GetInstance().WindowHeight - float(e.y);
 }
 
 void KeyboardMouseListener::HandleMouseEvent(SDL_MouseButtonEvent& e, bool isPressed)

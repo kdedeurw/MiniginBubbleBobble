@@ -19,28 +19,14 @@ Texture2DComponent::~Texture2DComponent()
 void Texture2DComponent::Initialize()
 {}
 
-void Texture2DComponent::Render(Transform* pParentTrans) const
+void Texture2DComponent::Render() const
 {
-	Vector2 pos = m_pGameObject->GetTransform().GetPosition(); //vector3 : vector2
-	//Vector2 scale = m_pGameObject->GetTransform().GetScale();
+	const Vector2 pos = m_pGameObject->GetFinalPos();
 
-	//TODO: while loop going over all parent objects and adding up positional and rotational values
-	if (pParentTrans)
-	{
-		const float parentRot = pParentTrans->GetRotation() * Math::ToRadians;
-		const float sinCalc{ sinf(parentRot) };
-		const float cosCalc{ cosf(parentRot) };
-		const float newX{ pos.x * cosCalc - pos.y * sinCalc };//store new X, but don't overwrite original yet
-		pos.y = pos.y * cosCalc + pos.x * sinCalc;
-		pos.x = newX;
-		pos += pParentTrans->GetPosition();
-
-		//scale += pParentTrans->GetScale(); //inherit scale from parent?
-	}
 	const Vector2& scale{ m_pGameObject->GetTransform().GetScale() };
 	Renderer::GetInstance().RenderTexture(m_pTexture->GetSDLTexture(), 
 		(pos.x + m_DestRect.x) - (m_DestRect.z / 2 * scale.x), //x
-		(pos.y + m_DestRect.y) - (m_DestRect.w / 2 * scale.y), //y
+		(pos.y + m_DestRect.y) + (m_DestRect.w / 2 * scale.y), //y, swapped because origin of XY is down left
 		m_DestRect.z * scale.x, m_DestRect.w * scale.y, //scale
 		m_SourceRect.x, m_SourceRect.y, m_SourceRect.z, m_SourceRect.w, //srcRct
 		m_pGameObject->GetTransform().GetRotation()); //rot

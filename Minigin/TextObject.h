@@ -1,7 +1,7 @@
 #pragma once
 #include "SceneObject.h"
 #include "Transform.h"
-#include "Math.h"
+#include "MiniMath.h"
 
 class Font;
 class Texture;

@@ -4,8 +4,6 @@
 #include "GlobalInput.h"
 #include "GlobalMemoryPools.h"
 
-class Scene;
-class FPS;
 class GameState final : public SingletonRef<GameState> //placeholder name
 {
 public:
@@ -17,11 +15,11 @@ public:
 	GameState& operator=(GameState&& other) = delete;
 
 	float DeltaTime{};
-	Scene* pCurrentScene{};
-	FPS* pFPS{};
+	int WindowWidth{ -1 };
+	int WindowHeight{ -1 };
 	Timer<high_resolution_clock> Timer{};
 	GlobalInput& GlobalInput{ GlobalInput::GetInstance() };
-	GlobalMemoryPools& pGlobalMemoryPools{ GlobalMemoryPools::GetInstance() };
+	GlobalMemoryPools& GlobalMemoryPools{ GlobalMemoryPools::GetInstance() };
 
 private:
 	friend static GameState& SingletonRef<GameState>::GetInstance();
