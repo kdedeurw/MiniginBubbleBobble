@@ -1,44 +1,28 @@
 #include "MiniginPCH.h"
-#include "RigidBodyComponent.h"
-#include "GameObject.h"
-#include "Renderer.h"
+#include "RigidBody.h"
 #include <Box2D.h>
+#include "Renderer.h"
+#include "PhysicsComponent.h"
 
-RigidBodyComponent::RigidBodyComponent()
+RigidBody::RigidBody()
 	: m_pBody{}
 {}
 
-RigidBodyComponent::~RigidBodyComponent()
+RigidBody::~RigidBody()
 {
 	m_pBody = nullptr;
 }
 
-void RigidBodyComponent::Initialize()
-{}
-
-void RigidBodyComponent::Render() const
-{
-	DrawDebug();
-}
-
-void RigidBodyComponent::Update()
-{
-	const b2Vec2& pos = m_pBody->GetPosition();
-	m_pGameObject->GetTransform().SetPosition(Vector2{ pos.x, pos.y });
-
-	m_pGameObject->GetTransform().SetRotation(m_pBody->GetAngle());
-}
-
-void RigidBodyComponent::Create(const Vector2& pos, Type type)
+void RigidBody::Create(const Vector2& pos, Type type)
 {
 	b2BodyDef bodyDef{};
 	bodyDef.position.Set(pos.x, pos.y);
 	bodyDef.type = (b2BodyType)type;
 	bodyDef.userData = this;
-	m_pBody = m_Box2DWorld.CreateBody(&bodyDef);
+	m_pBody = PhysicsComponent::Getb2World().CreateBody(&bodyDef);
 }
 
-void RigidBodyComponent::CreateBox(const Vector2& pos, float m, const Vector2& dim, Type type)
+void RigidBody::CreateBox(const Vector2& pos, float m, const Vector2& dim, Type type)
 {
 	Create(pos, type);
 	b2PolygonShape shape{};
@@ -53,35 +37,46 @@ void RigidBodyComponent::CreateBox(const Vector2& pos, float m, const Vector2& d
 	m_Dim = dim;
 }
 
-void RigidBodyComponent::CreatePolygon(const Vector2&, float, const std::vector<Vector2>&, Type)
+void RigidBody::CreatePolygon(const Vector2&, float, const std::vector<Vector2>&, Type)
 {
 	//TODO: add
 	//Create(pos, type);
 	//b2PolygonShape shape{};
 }
 
-void RigidBodyComponent::CreateCircle(const Vector2&, float, float, Type)
+void RigidBody::CreateCircle(const Vector2&, float, float, Type)
 {
 	//TODO: add
 	//Create(pos, type);
 }
 
-void RigidBodyComponent::SetType(Type type)
+void RigidBody::SetType(Type type)
 {
 	m_pBody->SetType((b2BodyType)type);
 }
 
-void RigidBodyComponent::ApplyForce(const Vector2& force)
+void RigidBody::DestroyBody()
 {
-	m_pBody->ApplyForce(b2Vec2{force.x, force.y}, m_pBody->GetWorldCenter(), true);
+	PhysicsComponent::Getb2World().DestroyBody(m_pBody);
+	this->~RigidBody();
 }
 
-void RigidBodyComponent::ApplyTorque(float t)
+void RigidBody::ApplyForce(const Vector2& force)
+{
+	m_pBody->ApplyForce(b2Vec2{ force.x, force.y }, m_pBody->GetWorldCenter(), true);
+}
+
+void RigidBody::ApplyLinearImpulse(const Vector2& force)
+{
+	m_pBody->ApplyLinearImpulseToCenter(b2Vec2{ force.x, force.y }, true);
+}
+
+void RigidBody::ApplyTorque(float t)
 {
 	m_pBody->ApplyTorque(t, true);
 }
 
-void RigidBodyComponent::SetMass(float m)
+void RigidBody::SetMass(float m)
 {
 	b2MassData massData;
 	m_pBody->GetMassData(&massData);
@@ -89,17 +84,17 @@ void RigidBodyComponent::SetMass(float m)
 	m_pBody->SetMassData(&massData);
 }
 
-void RigidBodyComponent::SetLinearVelocity(const Vector2& vel)
+void RigidBody::SetLinearVelocity(const Vector2& vel)
 {
 	m_pBody->SetLinearVelocity(b2Vec2{ vel.x, vel.y });
 }
 
-void RigidBodyComponent::SetAngularVelocity(float w)
+void RigidBody::SetAngularVelocity(float w)
 {
 	m_pBody->SetAngularVelocity(w);
 }
 
-void RigidBodyComponent::DrawDebug() const
+void RigidBody::DrawDebug() const
 {
 	Renderer::GetInstance().DrawPoint(Vector2{ m_pBody->GetPosition().x, m_pBody->GetPosition().y });
 

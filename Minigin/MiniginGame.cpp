@@ -28,6 +28,7 @@ dae::MiniginGame::MiniginGame(const char* pTitle, int w, int h, int msPF)
 	, m_GlobalInput{ GlobalInput::GetInstance() }
 	, m_GlobalMemoryPools{ GlobalMemoryPools::GetInstance() }
 	, m_WindowInfo{ pTitle, w, h, msPF }
+	, m_QuitKey{ Key::Escape }
 {
 	//TODO: re-fix
 	m_GameState.WindowWidth = w;
@@ -37,7 +38,7 @@ dae::MiniginGame::MiniginGame(const char* pTitle, int w, int h, int msPF)
 dae::MiniginGame::~MiniginGame()
 {}
 
-void dae::MiniginGame::Initialize()
+void dae::MiniginGame::InitializeSDL()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) 
 	{
@@ -58,6 +59,11 @@ void dae::MiniginGame::Initialize()
 	}
 
 	m_Renderer.Init(m_pWindow);
+}
+
+void dae::MiniginGame::Initialize()
+{
+	m_SceneManager.Initialize();
 }
 
 /**
@@ -101,37 +107,37 @@ void dae::MiniginGame::Cleanup()
 
 void dae::MiniginGame::Start()
 {
-	Initialize();
+	InitializeSDL();
 	LoadGame();
+	Initialize();
 
 	{
 		float lag{};
 		Timer<high_resolution_clock> timer{}; //start point automatically resets to Time::Now();
 		while (!m_IsQuit)
 		{
-			//forced sleeptime
-			//TODO: fix this goddamn time issue
-			this_thread::sleep_for(16ms);
+			//set global deltatime
+			m_GameState.DeltaTime = timer.GetElapsedTime<float, milliseconds>()/* / 1000.f*/;
+			timer.ResetStartTime();
 			//process all input
 			m_GlobalInput.KeyboardMouseListener.ProcessInput();
 			m_GlobalInput.ControllerListener.ProcessInput();
 			m_IsQuit = m_GlobalInput.KeyboardMouseListener.IsQuit();
 			//force quit
-			m_IsQuit = m_GlobalInput.KeyboardMouseListener.IsPressed(Key::Escape);
+			m_IsQuit = m_GlobalInput.KeyboardMouseListener.IsPressed(m_QuitKey);
 			//get Time::Now()
 			const auto currentTime = high_resolution_clock::now();
-			//set global deltatime
-			m_GameState.DeltaTime = timer.GetElapsedTime<float, milliseconds>();
 
 			lag += m_GameState.DeltaTime;
 			while(lag >= m_WindowInfo.MsPerFrame)
 			{
-				m_GameState.DeltaTime = m_WindowInfo.MsPerFrame / 1000.f;
+				m_GameState.DeltaTime /= 1000.f;
 				m_SceneManager.Update();
+				Update();
+				PhysicsComponent::UpdatePhysics();
 				lag -= m_WindowInfo.MsPerFrame;
 			}
 			m_Renderer.Render();
-			timer.ResetStartTime();
 			
 			const auto sleepTime = duration_cast<duration<float>>(currentTime + milliseconds(m_WindowInfo.MsPerFrame) - high_resolution_clock::now());
 			this_thread::sleep_for(sleepTime);
@@ -141,7 +147,7 @@ void dae::MiniginGame::Start()
 	Cleanup();
 }
 
-void dae::MiniginGame::ForceEnd()
+void dae::MiniginGame::ForceQuit()
 {
 	m_IsQuit = true;
 }
@@ -154,4 +160,9 @@ void dae::MiniginGame::AddFPSScene(float x, float y) const
 	pGo->AddComponent(pFPS);
 	pGo->GetTransform().SetPosition(x, y);
 	scene.AddObject(pGo);
+}
+
+void dae::MiniginGame::SetForceQuitKey(Key key)
+{
+	m_QuitKey = key;
 }

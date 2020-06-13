@@ -7,6 +7,7 @@ class SceneManager final : public SingletonRef<SceneManager>
 public:
 	~SceneManager();
 
+	void Initialize();
 	void Update();
 	void Render() const;
 

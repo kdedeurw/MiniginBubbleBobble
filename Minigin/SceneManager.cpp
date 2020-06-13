@@ -17,6 +17,14 @@ SceneManager::~SceneManager()
 	m_pScenes.clear();
 }
 
+void SceneManager::Initialize()
+{
+	for (Scene* pScene : m_pScenes)
+	{
+		pScene->Initialize();
+	}
+}
+
 void SceneManager::Update()
 {
 	for(Scene* pScene : m_pScenes)

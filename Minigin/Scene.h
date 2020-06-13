@@ -15,6 +15,7 @@ public:
 
 	void AddObject(SceneObject* pObject);
 
+	void Initialize();
 	void Update();
 	void Render() const;
 

@@ -10,17 +10,7 @@
 #include "Font.h"
 
 ResourceManager::~ResourceManager()
-{
-	////delete SDL_Object*'s
-	//for (auto& it : m_Textures)
-	//{
-	//	SDL_DestroyTexture(it.second->GetSDLTexture());
-	//}
-	//for (auto& it : m_Fonts)
-	//{
-	//	TTF_CloseFont(it.second->GetFont());
-	//}
-}
+{}
 
 void ResourceManager::Init(const std::string& dataPath)
 {

@@ -22,7 +22,10 @@ public:
 	void DrawDebug(const Vector2& pos, unsigned int id) const;
 
 	void DrawPoint(float x, float y, RGBAColour colour = RGBAColour{ 255, 255, 255, 255 }) const;
-	void DrawPoint(Vector2 pos) const { DrawPoint(std::move(pos.x), std::move(pos.y)); };
+	void DrawPoint(Vector2 pos, RGBAColour colour = RGBAColour{ 255, 255, 255, 255 }) const { DrawPoint(std::move(pos.x), std::move(pos.y), colour); };
+
+	void DrawLine(float x1, float y1, float x2, float y2, RGBAColour colour = RGBAColour{ 255, 255, 255, 255 });
+	void DrawLine(Vector2 p1, Vector2 p2, RGBAColour colour = RGBAColour{ 255, 255, 255, 255 }) { DrawLine(std::move(p1.x), std::move(p1.y), std::move(p2.x), std::move(p2.y), colour); }
 
 	void RenderTexture(SDL_Texture* pTexture, float x, float y, float angle = 0.f, Flip flip = Flip::None) const;
 	void RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float angle = 0.f, Flip flip = Flip::None) const;

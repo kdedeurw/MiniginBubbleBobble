@@ -28,6 +28,14 @@ void Scene::AddObject(SceneObject* pObject)
 	//TODO: reject child objects
 }
 
+void Scene::Initialize()
+{
+	for (SceneObject* pObject : m_pObjects)
+	{
+		pObject->Initialize();
+	}
+}
+
 void Scene::Update()
 {
 	for(SceneObject* pObject : m_pObjects)

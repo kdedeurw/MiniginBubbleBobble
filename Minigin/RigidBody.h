@@ -1,9 +1,8 @@
 #pragma once
-#include "PhysicsComponent.h"
 #include "Vectors.h"
 
 class b2Body;
-class RigidBodyComponent : public PhysicsComponent
+class RigidBody
 {
 public:
 	enum class Type
@@ -13,20 +12,20 @@ public:
 		Dynamic,
 	};
 
-	RigidBodyComponent();
-	~RigidBodyComponent();
+	RigidBody();
+	virtual ~RigidBody();
 
-	virtual void Initialize() override;
-	virtual void Render() const override;
-	virtual void Update() override;
+	void DrawDebug() const;
 
 	void CreateBox(const Vector2& pos, float m, const Vector2& dim, Type type = Type::Static);
 	void CreatePolygon(const Vector2& pos, float m, const std::vector<Vector2>& points, Type type = Type::Static);
 	void CreateCircle(const Vector2& pos, float m, float r, Type type = Type::Static);
 	void SetType(Type type);
+	void DestroyBody();
 
 	//only applies force in center
 	void ApplyForce(const Vector2& force);
+	void ApplyLinearImpulse(const Vector2& force);
 	void ApplyTorque(float t);
 	void SetMass(float m);
 	void SetLinearVelocity(const Vector2& vel);
@@ -37,6 +36,5 @@ private:
 	Vector2 m_Dim;
 
 	void Create(const Vector2& pos, Type type);
-
-	void DrawDebug() const;
 };
+

@@ -11,6 +11,8 @@ class GlobalMemoryPools;
 class TextObject;
 struct Vector2;
 class GameObject;
+enum class Key;
+class b2World; //box2d
 namespace dae
 {
 	class MiniginGame
@@ -20,7 +22,7 @@ namespace dae
 		virtual ~MiniginGame();
 
 		void Start();
-		void ForceEnd();
+		void ForceQuit();
 
 	protected:
 		bool m_IsQuit = false;
@@ -37,12 +39,17 @@ namespace dae
 
 		//override me! (Don't forget to set ResourceManager's DataPath)
 		virtual void LoadGame();
+		//override me for extra functionality in the main update loop (debugging purposes)
+		virtual void Update() {};
 
 		void AddFPSScene(float x = 0, float y = 480) const;
+		void SetForceQuitKey(Key key);
 
 	private:
+		Key m_QuitKey;
 		SDL_Window* m_pWindow = nullptr;
 
+		void InitializeSDL();
 		void Initialize();
 		void Cleanup();
 	};

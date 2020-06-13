@@ -61,6 +61,13 @@ void Renderer::DrawPoint(float x, float y, RGBAColour colour) const
 	SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 0, 1);
 }
 
+void Renderer::DrawLine(float x1, float y1, float x2, float y2, RGBAColour colour)
+{
+	SDL_SetRenderDrawColor(m_pRenderer, colour.r, colour.g, colour.b, colour.a);
+	SDL_RenderDrawLine(m_pRenderer, std::move((int)x1), std::move(GameState::GetInstance().WindowHeight - (int)y1), std::move((int)x2), std::move(GameState::GetInstance().WindowHeight - (int)y2));
+	SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 0, 1);
+}
+
 void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float angle, Flip flip) const
 {
 	int w, h;

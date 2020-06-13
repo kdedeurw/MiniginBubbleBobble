@@ -29,7 +29,17 @@ GameObject::~GameObject()
 }
 
 void GameObject::Initialize()
-{}
+{
+	for (Component* pComponent : m_pComponents)
+	{
+		pComponent->Initialize();
+	}
+
+	for (GameObject* pObject : m_pChildren)
+	{
+		pObject->Initialize();
+	}
+}
 
 void GameObject::Update()
 {
