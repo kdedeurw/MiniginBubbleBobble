@@ -9,6 +9,9 @@
 #include "Components.h"
 #include "Globals.h"
 #include "General.h"
+#include "Player.h"
+#include "LevelParser.h"
+#include "Level.h"
 
 BubbleBobbleGame::BubbleBobbleGame(const char* pTitle, int w, int h, int msPF)
 	: MiniginGame{ pTitle, w, h, msPF }
@@ -19,7 +22,77 @@ BubbleBobbleGame::~BubbleBobbleGame()
 
 void BubbleBobbleGame::LoadGame()
 {
-	MiniginGame::LoadGame();
+	// tell the resource manager where he can find the game data
+	m_ResourceManager.Init("../Data/");
+	//MiniginGame::LoadGame();
+	
+	Scene& scene = m_SceneManager.CreateScene("RigidBodyTestScene");
+
+	//GameObject* pGo = m_GlobalMemoryPools.CreateGameObject();
+	//pGo->GetTransform().SetPosition(m_WindowInfo.Width / 2.f, m_WindowInfo.Height / 2.f);
+
+	//RigidBodyComponent* pRB = m_GlobalMemoryPools.CreateComponent<RigidBodyComponent>();
+	//pRB->CreateBox(pGo->GetTransform().GetPosition(), 0.f, Vector2{ 100.f, 50.f }, RigidBodyComponent::Type::Static);
+	//pGo->AddComponent(pRB);
+
+	//scene.AddObject(pGo);
+
+	//pBox = m_GlobalMemoryPools.CreateGameObject();
+	//pBox->GetTransform().SetPosition(m_WindowInfo.Width / 2.f, 400.f);
+
+	//pRB = m_GlobalMemoryPools.CreateComponent<RigidBodyComponent>();
+	//pRB->CreateBox(pBox->GetTransform().GetPosition(), 1000.f, Vector2{ 50.f, 50.f }, RigidBodyComponent::Type::Dynamic);
+	//pBox->AddComponent(pRB);
+
+	//scene.AddObject(pBox);
+
+	GameObject* pGo = m_GlobalMemoryPools.CreateGameObject();
+	pGo->GetTransform().SetPosition(m_WindowInfo.Width / 4.f, m_WindowInfo.Height / 2.f);
+
+	SpriteComponent* pSprite = m_GlobalMemoryPools.CreateComponent<SpriteComponent>();
+	pSprite->SetTexture("PlayerSprites.png");
+	pSprite->SetTickRate(0.25f);
+	//pSprite->SetStateMultiplier(1);
+	//pSprite->SetSourceRect(Vector4{0.f, 34.f, 18.f, 18.f});
+	//pSprite->SetMaxFrames(2);
+	pGo->AddComponent(pSprite);
+	pGo->GetTransform().SetScale(Vector2{ 2.f, 2.f });
+
+	Player* pPlayer = m_GlobalMemoryPools.CreateComponent<Player>();
+	pPlayer->SetSprites(pSprite); //player uses/modifies sprites, sprites is still a valid component of gameobject
+	pGo->AddComponent(pPlayer);
+	pGo->GetTransform().SetPosition(Vector2{75.f, 60.f});
+
+	scene.AddObject(pGo);
+
+	LevelParser::GetInstance().Read("SeperatedLevelData.dat");
+
+	pGo = m_GlobalMemoryPools.CreateGameObject();
+	Level* pLevel = m_GlobalMemoryPools.CreateComponent<Level>();
+	pGo->AddComponent(pLevel);
+	pLevel->SetLevel(&LevelParser::GetInstance().GetLevels());
+	pLevel->Initialize();
+	pGo->GetTransform().SetScale(2.f, 2.f);
+	pGo->GetTransform().SetPosition(16.f, 16.f);
+
+	scene.AddObject(pGo);
+
+	AddFPSScene();
+
+	//TODO: call initialize on all components and gameobjects after LoadGame
+}
+
+void BubbleBobbleGame::Update()
+{
+	//RigidBodyComponent* pRB = pBox->GetComponent<RigidBodyComponent>();
+	//if (m_GlobalInput.KeyboardMouseListener.IsPressed(Key::ArrowLeft))
+	//	pRB->ApplyForce(Vector2{ -1.f, 0.f });
+	//else if (m_GlobalInput.KeyboardMouseListener.IsPressed(Key::ArrowRight))
+	//	pRB->ApplyForce(Vector2{ 1.f, 0.f });
+	//if (m_GlobalInput.KeyboardMouseListener.IsPressed(Key::ArrowUp))
+	//	pRB->ApplyForce(Vector2{ 0.f, 1.f });
+	//else if (m_GlobalInput.KeyboardMouseListener.IsPressed(Key::ArrowDown))
+	//	pRB->ApplyForce(Vector2{ 0.f, -1.f });
 }
 
 void BubbleBobbleGame::Archive()

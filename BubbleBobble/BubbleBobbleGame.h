@@ -13,6 +13,9 @@ public:
 
 private:
 	void LoadGame() override;
+	void Update() override;
+
+	GameObject* pBox;
 
 	//unused test content
 	void Archive();
