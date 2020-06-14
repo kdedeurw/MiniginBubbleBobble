@@ -74,9 +74,9 @@ float Vector2::Dot(const Vector2& other) const
 	return this->x * other.x + this->y * other.y;
 }
 
-Vector2 Vector2::Cross(const Vector2&) const
+float Vector2::Cross(const Vector2& other) const
 {
-	return Vector2{};
+	return this->x * other.y - this->y * other.x;
 }
 
 float Vector2::OrientOnWorld()

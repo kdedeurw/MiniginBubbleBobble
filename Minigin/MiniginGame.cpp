@@ -138,6 +138,7 @@ void dae::MiniginGame::Start()
 				lag -= m_WindowInfo.MsPerFrame;
 			}
 			m_Renderer.Render();
+			Render();
 			
 			const auto sleepTime = duration_cast<duration<float>>(currentTime + milliseconds(m_WindowInfo.MsPerFrame) - high_resolution_clock::now());
 			this_thread::sleep_for(sleepTime);
@@ -154,7 +155,7 @@ void dae::MiniginGame::ForceQuit()
 
 void dae::MiniginGame::AddFPSScene(float x, float y) const
 {
-	Scene& scene = m_SceneManager.CreateScene("FPS");
+	Scene& scene = m_SceneManager.CreateScene("FPS", true);
 	GameObject* pGo = m_GlobalMemoryPools.CreateGameObject();
 	FPSComponent* pFPS = m_GlobalMemoryPools.CreateComponent<FPSComponent>();
 	pGo->AddComponent(pFPS);

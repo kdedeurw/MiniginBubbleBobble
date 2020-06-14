@@ -10,6 +10,7 @@
 #include "TextObject.h"
 #include "Texture2D.h"
 #include "Font.h"
+#include "Subject.h"
 
 //Include for access to project's memory pools
 //this memory is being cleaned up afterwards
@@ -24,11 +25,9 @@ public:
 
 	GameObject* CreateGameObject();
 	TextObject* CreateTextObject(const std::string& text, Font* pFont);
-	//Prefer to use resourcemanager, use at own risk
 	Texture2D* CreateTexture2D(SDL_Texture* pTexture);
-	//Prefer to use resourcemanager, use at own risk
 	Font* CreateOwnFont(const std::string& file, unsigned int size);
-	//why does this cancer exist?; CreateFont is a UNICODE #define for CreateFontA, also there exists CreateFontW, smh..
+	Subject* CreateSubject(unsigned int maxSize);
 
 	//create a custom component on a single linked list allocator
 	template <typename T>
@@ -51,6 +50,7 @@ private:
 	FixedSizeAllocator<Transform> m_TransformAllocator;
 	FixedSizeAllocator<Texture2D> m_TextureAllocator;
 	FixedSizeAllocator<Font> m_FontAllocator;
+	FixedSizeAllocator<Subject> m_SubjectAllocator;
 
 	friend class SceneManager;
 	Scene* CreateScene(std::string name);

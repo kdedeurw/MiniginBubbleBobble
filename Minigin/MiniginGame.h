@@ -41,6 +41,8 @@ namespace dae
 		virtual void LoadGame();
 		//override me for extra functionality in the main update loop (debugging purposes)
 		virtual void Update() {};
+		//override me for extra functionality in the main update loop (debugging purposes)
+		virtual void Render() {};
 
 		void AddFPSScene(float x = 0, float y = 480) const;
 		void SetForceQuitKey(Key key);

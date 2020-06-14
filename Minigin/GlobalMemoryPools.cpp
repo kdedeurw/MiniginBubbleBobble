@@ -53,6 +53,7 @@ GlobalMemoryPools::GlobalMemoryPools()
 	, m_TransformAllocator{}
 	, m_TextureAllocator{}
 	, m_FontAllocator{}
+	, m_SubjectAllocator{}
 {
 	m_ComponentAllocator.Initialize(2048);
 	m_StackAllocator.Initialize(1024);
@@ -60,8 +61,9 @@ GlobalMemoryPools::GlobalMemoryPools()
 	m_GameObjectAllocator.Initialize(sizeof(GameObject) * 10);
 	m_TextObjectAllocator.Initialize(sizeof(TextObject) * 10);
 	m_TransformAllocator.Initialize(sizeof(Transform) * 20);
-	m_TextureAllocator.Initialize(sizeof(Texture2D) * 10);
-	m_FontAllocator.Initialize(sizeof(Font) * 3);
+	m_TextureAllocator.Initialize(sizeof(Texture2D) * 15);
+	m_FontAllocator.Initialize(sizeof(Font) * 5);
+	m_SubjectAllocator.Initialize(sizeof(Subject) * 10);
 	//TODO: fix magic number initialization
 }
 
@@ -73,6 +75,7 @@ GlobalMemoryPools::~GlobalMemoryPools()
 	m_TransformAllocator.CleanUp();
 	m_TextureAllocator.CleanUp();
 	m_FontAllocator.CleanUp();
+	m_SubjectAllocator.CleanUp();
 }
 
 Scene* GlobalMemoryPools::CreateScene(std::string name)
@@ -98,6 +101,11 @@ Texture2D* GlobalMemoryPools::CreateTexture2D(SDL_Texture* pTexture)
 Font* GlobalMemoryPools::CreateOwnFont(const std::string& file, unsigned int size)
 {
 	return new (m_FontAllocator) Font{ file, size };
+}
+
+Subject* GlobalMemoryPools::CreateSubject(unsigned int maxSize)
+{
+	return new (m_SubjectAllocator) Subject{ maxSize };
 }
 
 void GlobalMemoryPools::ResetStack()

@@ -2,7 +2,7 @@
 #include "SingletonRef.h"
 #include <map>
 
-class Texture2D;
+struct SDL_Texture;
 class Font;
 class ResourceManager final : public SingletonRef<ResourceManager>
 {
@@ -10,7 +10,7 @@ public:
 	~ResourceManager();
 
 	void Init(const std::string& data);
-	Texture2D* LoadTexture(const std::string& file);
+	SDL_Texture* LoadTexture(const std::string& file);
 	Font* LoadFont(const std::string& file, unsigned int size);
 
 private:
@@ -18,6 +18,6 @@ private:
 	ResourceManager() = default;
 	std::string m_DataPath;
 
-	std::map<std::string, Texture2D*> m_Textures;
+	std::map<std::string, SDL_Texture*> m_Textures;
 	std::map<std::string, Font*> m_Fonts;
 };

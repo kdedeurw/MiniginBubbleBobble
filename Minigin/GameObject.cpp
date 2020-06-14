@@ -10,6 +10,7 @@ GameObject::GameObject(Transform& transform)
 	, m_pChildren{}
 	, m_pParent{}
 	, m_pDebug{}
+	, m_IsActive{ true }
 {}
 
 GameObject::~GameObject()
@@ -43,6 +44,9 @@ void GameObject::Initialize()
 
 void GameObject::Update()
 {
+	if (!m_IsActive)
+		return;
+
 	for (Component* pComponent : m_pComponents)
 	{
 		pComponent->Update();
@@ -56,6 +60,9 @@ void GameObject::Update()
 
 void GameObject::Render() const
 {
+	if (!m_IsActive)
+		return;
+
 	if (m_pParent)
 	{
 		for (Component* pComponent : m_pComponents)

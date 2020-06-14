@@ -31,6 +31,8 @@ public:
 	void SetLinearVelocity(const Vector2& vel);
 	void SetAngularVelocity(float w);
 
+	const Vector2 GetPosition();
+
 private:
 	b2Body* m_pBody;
 	Vector2 m_Dim;

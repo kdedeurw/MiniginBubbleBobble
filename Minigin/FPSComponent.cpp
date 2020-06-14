@@ -86,6 +86,7 @@ unsigned int FPSComponent::GetFPS() const
 
 void FPSComponent::ResetFPS()
 {
+	std::cout << m_FpsInterval << '\n';
 	m_CurrentFps = m_FpsInterval;
 	m_Text = std::move("FPS " + std::to_string(m_FpsInterval));
 	m_FpsInterval = 0;

@@ -5,21 +5,23 @@
 #include "MemoryAllocator.h"
 
 SceneManager::SceneManager()
-	: m_pScenes{}
+	: m_pAllScenes{}
+	, m_pActiveScenes{}
 {}
 
 SceneManager::~SceneManager()
 {
-	for (Scene* pScene : m_pScenes)
+	for (Scene* pScene : m_pAllScenes)
 	{
 		delete pScene;
 	}
-	m_pScenes.clear();
+	m_pAllScenes.clear();
+	m_pActiveScenes.clear();
 }
 
 void SceneManager::Initialize()
 {
-	for (Scene* pScene : m_pScenes)
+	for (Scene* pScene : m_pAllScenes)
 	{
 		pScene->Initialize();
 	}
@@ -27,7 +29,7 @@ void SceneManager::Initialize()
 
 void SceneManager::Update()
 {
-	for(Scene* pScene : m_pScenes)
+	for(Scene* pScene : m_pActiveScenes)
 	{
 		pScene->Update();
 	}
@@ -35,15 +37,61 @@ void SceneManager::Update()
 
 void SceneManager::Render() const
 {
-	for (const Scene* pScene : m_pScenes)
+	for (const Scene* pScene : m_pActiveScenes)
 	{
 		pScene->Render();
 	}
 }
 
-Scene& SceneManager::CreateScene(const std::string& name)
+Scene& SceneManager::CreateScene(const std::string& name, bool isActive)
 {
 	Scene* pScene = GlobalMemoryPools::GetInstance().CreateScene(name.c_str());
-	m_pScenes.push_back(pScene);
+	m_pAllScenes.push_back(pScene);
+	if (isActive)
+		m_pActiveScenes.push_back(pScene);
 	return *pScene;
+}
+
+void SceneManager::ToggleScene(Scene& scene, bool isActive)
+{
+	for (Scene* pScene : m_pAllScenes)
+	{
+		if (*pScene == scene)
+		{
+			const auto it = std::find(m_pActiveScenes.begin(), m_pActiveScenes.end(), pScene);
+			if (isActive)
+			{
+				if (it == m_pActiveScenes.end())
+					m_pActiveScenes.push_back(pScene);
+			}
+			else
+			{
+				if (it != m_pActiveScenes.end())
+					m_pActiveScenes.erase(it);
+			}
+			return;
+		}
+	}
+}
+
+void SceneManager::ToggleScene(const std::string& name, bool isActive)
+{
+	for (Scene* pScene : m_pAllScenes)
+	{
+		if (pScene->m_Name == name)
+		{
+			const auto it = std::find(m_pActiveScenes.begin(), m_pActiveScenes.end(), pScene);
+			if (isActive)
+			{
+				if (it == m_pActiveScenes.end())
+					m_pActiveScenes.push_back(pScene);
+			}
+			else
+			{
+				if (it != m_pActiveScenes.end())
+					m_pActiveScenes.erase(it);
+			}
+			return;
+		}
+	}
 }

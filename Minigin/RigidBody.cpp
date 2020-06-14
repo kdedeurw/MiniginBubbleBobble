@@ -94,6 +94,12 @@ void RigidBody::SetAngularVelocity(float w)
 	m_pBody->SetAngularVelocity(w);
 }
 
+const Vector2 RigidBody::GetPosition()
+{
+	const b2Vec2& pos = m_pBody->GetPosition();
+	return Vector2{ pos.x, pos.y };
+}
+
 void RigidBody::DrawDebug() const
 {
 	Renderer::GetInstance().DrawPoint(Vector2{ m_pBody->GetPosition().x, m_pBody->GetPosition().y });

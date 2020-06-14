@@ -40,7 +40,10 @@ public:
 	//get all child and parent calculated transformations
 	Transform GetFinalTransform() const;
 
+	void SetActive(bool isActive) { m_IsActive = isActive; };
+
 private:
+	bool m_IsActive;
 	GameObject* m_pParent;
 
 	std::vector<Component*> m_pComponents;

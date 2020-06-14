@@ -4,6 +4,7 @@
 #include "GlobalInput.h"
 #include "GlobalMemoryPools.h"
 
+class Scene;
 class GameState final : public SingletonRef<GameState> //placeholder name
 {
 public:
@@ -17,6 +18,7 @@ public:
 	float DeltaTime{};
 	int WindowWidth{ -1 };
 	int WindowHeight{ -1 };
+	Scene* pGameScene{};
 	Timer<high_resolution_clock> Timer{};
 	GlobalInput& GlobalInput{ GlobalInput::GetInstance() };
 	GlobalMemoryPools& GlobalMemoryPools{ GlobalMemoryPools::GetInstance() };

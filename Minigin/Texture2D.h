@@ -1,11 +1,14 @@
 #pragma once
 #include "Texture.h"
 #include "MiniMath.h"
+#include "RenderFlip.h"
 
 struct SDL_Texture;
 class Texture2D final : public Texture
 {
 public:
+	//friend class Texture2DComponent;
+
 	explicit Texture2D(SDL_Texture* pTexture = nullptr);
 	virtual ~Texture2D();
 	Texture2D(const Texture2D &) = delete;
@@ -15,6 +18,7 @@ public:
 
 	bool InitializeTexture();
 
+	void SetFlip(RenderFlip flip);
 	//easily switch textures
 	void SetTexture(SDL_Texture* pTexture);
 	//load in new texture (new textures take time to load)
@@ -28,11 +32,13 @@ public:
 	//aka Render Destination quad in world space
 	void SetDestRect(Vector4 dstRect);
 
+	const RenderFlip GetFlip() const;
 	Vector4& GetSourceRect();
 	Vector4& GetDestRect();
 	const Vector2& GetDimensions() const;
 
 protected:
+	RenderFlip m_Flip;
 	Vector2 m_Dimensions;
 	Vector4 m_SourceRect;
 	Vector4 m_DestRect;

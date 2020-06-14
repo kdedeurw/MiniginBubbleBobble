@@ -68,14 +68,14 @@ void Renderer::DrawLine(float x1, float y1, float x2, float y2, RGBAColour colou
 	SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 0, 1);
 }
 
-void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float angle, Flip flip) const
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float angle, RenderFlip flip) const
 {
 	int w, h;
 	SDL_QueryTexture(pTexture, nullptr, nullptr, &w, &h);
 	RenderTexture(pTexture, std::move(x), std::move(y), std::move((float)w), std::move((float)h), std::move(angle), flip);
 }
 
-void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float angle, Flip flip) const
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float angle, RenderFlip flip) const
 {
 	SDL_Rect dst;
 	dst.x = std::move((int)x);
@@ -85,14 +85,14 @@ void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float widt
 	SDL_RenderCopyEx(m_pRenderer, pTexture, nullptr, &dst, angle, nullptr, (SDL_RendererFlip)flip);
 }
 
-void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float srcX, float srcY, float angle, Flip flip) const
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float srcX, float srcY, float angle, RenderFlip flip) const
 {
 	int w, h;
 	SDL_QueryTexture(pTexture, nullptr, nullptr, &w, &h);
 	RenderTexture(pTexture, std::move(x), std::move(y), std::move(width), std::move(height), std::move(srcX), std::move(srcY), std::move((float)w), std::move((float)h), std::move(angle), flip);
 }
 
-void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float srcX, float srcY, float srcW, float srcH, float angle, Flip flip) const
+void Renderer::RenderTexture(SDL_Texture* pTexture, float x, float y, float width, float height, float srcX, float srcY, float srcW, float srcH, float angle, RenderFlip flip) const
 {
 	SDL_Rect dst;
 	dst.x = std::move((int)x);

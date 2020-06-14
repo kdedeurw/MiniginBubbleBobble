@@ -24,7 +24,7 @@ struct Vector2
 
 	virtual float Magnitude() const;
 	float Dot(const Vector2& other) const;
-	Vector2 Cross(const Vector2& other) const;
+	float Cross(const Vector2& other) const;
 	//gives an angle in degrees oriented to the world's right vector
 	float OrientOnWorld();
 	virtual float Normalize();

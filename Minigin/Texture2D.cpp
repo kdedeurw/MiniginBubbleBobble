@@ -5,6 +5,7 @@
 
 Texture2D::Texture2D(SDL_Texture* pTexture)
 	: Texture{ pTexture }
+	, m_Flip{ RenderFlip::None }
 	//chose not to initialize other member variables since they need to be forcefully set in Init
 {}
 
@@ -30,6 +31,11 @@ bool Texture2D::InitializeTexture()
 	return false;
 }
 
+void Texture2D::SetFlip(RenderFlip flip)
+{
+	m_Flip = flip;
+}
+
 void Texture2D::SetTexture(SDL_Texture* pTexture)
 {
 	m_pTexture = pTexture;
@@ -38,7 +44,7 @@ void Texture2D::SetTexture(SDL_Texture* pTexture)
 
 void Texture2D::SetTexture(const std::string& fileAsset)
 {
-	m_pTexture = ResourceManager::GetInstance().LoadTexture(fileAsset)->GetSDLTexture();
+	m_pTexture = ResourceManager::GetInstance().LoadTexture(fileAsset);
 	InitializeTexture();
 }
 
@@ -50,6 +56,11 @@ void Texture2D::SetSourceRect(Vector4 srcRect)
 void Texture2D::SetDestRect(Vector4 dstRect)
 {
 	m_DestRect = std::move(dstRect);//std::move accepts rvalue, so we move copied srcRect in m_DestRect
+}
+
+const RenderFlip Texture2D::GetFlip() const
+{
+	return m_Flip;
 }
 
 Vector4& Texture2D::GetSourceRect()

@@ -34,7 +34,7 @@ void ResourceManager::Init(const std::string& dataPath)
 	}
 }
 
-Texture2D* ResourceManager::LoadTexture(const std::string& file)
+SDL_Texture* ResourceManager::LoadTexture(const std::string& file)
 {
 	//search whether the texture already exists
 	const auto it = m_Textures.find(file);
@@ -43,13 +43,12 @@ Texture2D* ResourceManager::LoadTexture(const std::string& file)
 
 	//if not, create a new texture and store it
 	const std::string fullPath = m_DataPath + file;
-	SDL_Texture* texture = IMG_LoadTexture(Renderer::GetInstance().GetSDLRenderer(), fullPath.c_str());
-	if (texture == nullptr) 
+	SDL_Texture* pTexture = IMG_LoadTexture(Renderer::GetInstance().GetSDLRenderer(), fullPath.c_str());
+	if (pTexture == nullptr)
 	{
 		throw std::runtime_error(std::string("Failed to load texture: ") + SDL_GetError());
 	}
-	return m_Textures[file] = GlobalMemoryPools::GetInstance().CreateTexture2D(texture);
-	//can either manage own memory (copying pointers during init of a scene) or have a table of textures (like the above)
+	return m_Textures[file] = pTexture;
 }
 
 Font* ResourceManager::LoadFont(const std::string& file, unsigned int size)

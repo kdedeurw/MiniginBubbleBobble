@@ -6,7 +6,7 @@
 #include "Math.h"
 
 Texture2DComponent::Texture2DComponent()
-	: m_pTexture{}
+	: m_pTexture{ GlobalMemoryPools::GetInstance().CreateTexture2D(nullptr) }
 {}
 
 Texture2DComponent::~Texture2DComponent()
@@ -16,8 +16,9 @@ Texture2DComponent::~Texture2DComponent()
 
 void Texture2DComponent::Initialize()
 {
-	if (!m_pTexture->InitializeTexture())
-		throw std::exception("Texture2DComponent::Initialize > invalid texture");
+	//if (!m_pTexture->InitializeTexture())
+	//	throw std::exception("Texture2DComponent::Initialize > invalid texture or texture not set");
+	//resets dest- and sourcerects;
 }
 
 void Texture2DComponent::Render() const
@@ -31,7 +32,8 @@ void Texture2DComponent::Render() const
 		(pos.y + dstRec.y) + (dstRec.w / 2 * scale.y), //y, swapped because origin of XY is down left
 		dstRec.z * scale.x, dstRec.w * scale.y, //scale
 		srcRect.x, srcRect.y, srcRect.z, srcRect.w, //srcRct
-		m_pGameObject->GetTransform().GetRotation()); //rot
+		m_pGameObject->GetTransform().GetRotation(), //rot
+		m_pTexture->GetFlip()); //flip
 }
 
 void Texture2DComponent::Update()
@@ -39,19 +41,10 @@ void Texture2DComponent::Update()
 
 void Texture2DComponent::SetTexture(SDL_Texture* pTexture)
 {
-	//TODO: remove/unsafe
-	if (!m_pTexture)
-		m_pTexture = GlobalMemoryPools::GetInstance().CreateTexture2D(pTexture);
-	else
-		m_pTexture->SetTexture(pTexture);
-	m_pTexture->InitializeTexture();
+	m_pTexture->SetTexture(pTexture);
 }
 
 void Texture2DComponent::SetTexture(const std::string& fileAsset)
 {
-	if (!m_pTexture)
-		m_pTexture = ResourceManager::GetInstance().LoadTexture(fileAsset);
-	else
-		m_pTexture->SetTexture(fileAsset);
-	m_pTexture->InitializeTexture();
+	m_pTexture->SetTexture(fileAsset);
 }

@@ -51,3 +51,8 @@ void Scene::Render() const
 		pObject->Render();
 	}
 }
+
+bool Scene::operator==(const Scene& other)
+{
+	return m_Name == other.m_Name;
+}
