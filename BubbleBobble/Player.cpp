@@ -15,6 +15,7 @@ Player::Player()
 	, m_pCollision{ RigidBody{} }
 	, m_Speed{ 100.f }
 	, m_JumpForce{ 200.f }
+	, m_Player{ Playables::Bub }
 {}
 
 Player::~Player()
@@ -81,6 +82,16 @@ void Player::Update()
 void Player::SetSprites(SpriteComponent* pComp)
 {
 	m_pSprites = pComp;
+}
+
+void Player::SetCharacter(Playables character)
+{
+	m_Player = character;
+}
+
+Player::Playables Player::GetCharacter() const
+{
+	return m_Player;
 }
 
 void Player::UpdateState()

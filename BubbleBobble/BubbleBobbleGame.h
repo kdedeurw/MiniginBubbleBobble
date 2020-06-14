@@ -5,6 +5,8 @@ class TextObject;
 class GameObject;
 struct Vector2;
 struct Vector4;
+class SpawnManager;
+class Level;
 class BubbleBobbleGame final : public dae::MiniginGame
 {
 public:
@@ -12,12 +14,31 @@ public:
 	~BubbleBobbleGame();
 
 private:
+	enum class States
+	{
+		Menu,
+		Playing,
+		Pause,
+	};
+
+	//base functions
 	void LoadGame() override;
 	void Update() override;
+	void Render() override;
 
-	GameObject* pBox;
+	//game functions
+	void ParseLevelData();
+	void ParseEnemyData();
 
-	//unused test content
+	void LoadMenuScene();
+	void LoadPauseScene();
+
+	States m_State;
+	SpawnManager& m_SpawnManager;
+
+	Level* m_pLevel;
+
+	//inactive test content
 	void Archive();
 	void InputTest(TextObject* pTo);
 	void ScaleTest(Vector2& scale);

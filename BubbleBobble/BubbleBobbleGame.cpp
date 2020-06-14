@@ -12,39 +12,33 @@
 #include "Player.h"
 #include "LevelParser.h"
 #include "Level.h"
+#include "SpawnManager.h"
+#include "EnemyParser.h"
 
 BubbleBobbleGame::BubbleBobbleGame(const char* pTitle, int w, int h, int msPF)
 	: MiniginGame{ pTitle, w, h, msPF }
+	, m_SpawnManager{ SpawnManager::GetInstance() }
+	, m_pLevel{}
+	, m_State{ States::Menu }
 {}
 
 BubbleBobbleGame::~BubbleBobbleGame()
-{}
+{
+	m_pLevel = nullptr;
+}
 
 void BubbleBobbleGame::LoadGame()
 {
+	GameState& gs = GameState::GetInstance();
 	// tell the resource manager where he can find the game data
 	m_ResourceManager.Init("../Data/");
 	//MiniginGame::LoadGame();
+
+	LoadMenuScene();
+	LoadPauseScene();
 	
-	Scene& scene = m_SceneManager.CreateScene("RigidBodyTestScene");
-
-	//GameObject* pGo = m_GlobalMemoryPools.CreateGameObject();
-	//pGo->GetTransform().SetPosition(m_WindowInfo.Width / 2.f, m_WindowInfo.Height / 2.f);
-
-	//RigidBodyComponent* pRB = m_GlobalMemoryPools.CreateComponent<RigidBodyComponent>();
-	//pRB->CreateBox(pGo->GetTransform().GetPosition(), 0.f, Vector2{ 100.f, 50.f }, RigidBodyComponent::Type::Static);
-	//pGo->AddComponent(pRB);
-
-	//scene.AddObject(pGo);
-
-	//pBox = m_GlobalMemoryPools.CreateGameObject();
-	//pBox->GetTransform().SetPosition(m_WindowInfo.Width / 2.f, 400.f);
-
-	//pRB = m_GlobalMemoryPools.CreateComponent<RigidBodyComponent>();
-	//pRB->CreateBox(pBox->GetTransform().GetPosition(), 1000.f, Vector2{ 50.f, 50.f }, RigidBodyComponent::Type::Dynamic);
-	//pBox->AddComponent(pRB);
-
-	//scene.AddObject(pBox);
+	Scene& scene = m_SceneManager.CreateScene("BubbleBobbleScene", false);
+	gs.pGameScene = &scene;
 
 	GameObject* pGo = m_GlobalMemoryPools.CreateGameObject();
 	pGo->GetTransform().SetPosition(m_WindowInfo.Width / 4.f, m_WindowInfo.Height / 2.f);
@@ -52,9 +46,6 @@ void BubbleBobbleGame::LoadGame()
 	SpriteComponent* pSprite = m_GlobalMemoryPools.CreateComponent<SpriteComponent>();
 	pSprite->SetTexture("PlayerSprites.png");
 	pSprite->SetTickRate(0.25f);
-	//pSprite->SetStateMultiplier(1);
-	//pSprite->SetSourceRect(Vector4{0.f, 34.f, 18.f, 18.f});
-	//pSprite->SetMaxFrames(2);
 	pGo->AddComponent(pSprite);
 	pGo->GetTransform().SetScale(Vector2{ 2.f, 2.f });
 
@@ -65,34 +56,121 @@ void BubbleBobbleGame::LoadGame()
 
 	scene.AddObject(pGo);
 
-	LevelParser::GetInstance().Read("SeperatedLevelData.dat");
+	LevelParser::GetInstance().Parse("SeperatedLevelData.dat");
+	EnemyParser::GetInstance().Parse("SeperatedEnemyData.dat");
 
 	pGo = m_GlobalMemoryPools.CreateGameObject();
-	Level* pLevel = m_GlobalMemoryPools.CreateComponent<Level>();
-	pGo->AddComponent(pLevel);
-	pLevel->SetLevel(&LevelParser::GetInstance().GetLevels());
-	pLevel->Initialize();
+	m_pLevel = m_GlobalMemoryPools.CreateComponent<Level>();
+	pGo->AddComponent(m_pLevel);
+	m_pLevel->SetLevels(&LevelParser::GetInstance().GetLevels());
+	m_pLevel->SetEnemyData(&EnemyParser::GetInstance().GetData());
 	pGo->GetTransform().SetScale(2.f, 2.f);
 	pGo->GetTransform().SetPosition(16.f, 16.f);
 
 	scene.AddObject(pGo);
 
 	AddFPSScene();
-
-	//TODO: call initialize on all components and gameobjects after LoadGame
 }
 
 void BubbleBobbleGame::Update()
 {
-	//RigidBodyComponent* pRB = pBox->GetComponent<RigidBodyComponent>();
-	//if (m_GlobalInput.KeyboardMouseListener.IsPressed(Key::ArrowLeft))
-	//	pRB->ApplyForce(Vector2{ -1.f, 0.f });
-	//else if (m_GlobalInput.KeyboardMouseListener.IsPressed(Key::ArrowRight))
-	//	pRB->ApplyForce(Vector2{ 1.f, 0.f });
-	//if (m_GlobalInput.KeyboardMouseListener.IsPressed(Key::ArrowUp))
-	//	pRB->ApplyForce(Vector2{ 0.f, 1.f });
-	//else if (m_GlobalInput.KeyboardMouseListener.IsPressed(Key::ArrowDown))
-	//	pRB->ApplyForce(Vector2{ 0.f, -1.f });
+	switch (m_State)
+	{
+	case BubbleBobbleGame::States::Menu:
+		if (m_GlobalInput.KeyboardMouseListener.IsPressed(Key::Enter) || m_GlobalInput.ControllerListener.IsPressed(Button::Start))
+		{
+			m_State = States::Playing;
+			SceneManager::GetInstance().ToggleScene("MenuScene", false);
+			SceneManager::GetInstance().ToggleScene("BubbleBobbleScene", true);
+		}
+		break;
+	case BubbleBobbleGame::States::Playing:
+		if (m_GlobalInput.KeyboardMouseListener.IsPressed(Key::P) || m_GlobalInput.ControllerListener.IsPressed(Button::Select))
+		{
+			m_State = States::Pause;
+			SceneManager::GetInstance().ToggleScene("PauseScene", true);
+		}
+		break;
+	case BubbleBobbleGame::States::Pause:
+		//TODO: fix time-skip by timer in main loop still counting
+		while (true)
+		{
+			m_GlobalInput.KeyboardMouseListener.ProcessInput();
+			m_GlobalInput.ControllerListener.ProcessInput();
+			if (m_GlobalInput.KeyboardMouseListener.IsPressed(Key::Enter) || m_GlobalInput.ControllerListener.IsPressed(Button::Start))
+			{
+				m_State = States::Playing;
+				SceneManager::GetInstance().ToggleScene("PauseScene", false);
+				break;
+			}
+		}
+		break;
+	}
+}
+
+void BubbleBobbleGame::Render()
+{
+}
+
+void BubbleBobbleGame::ParseLevelData()
+{
+}
+
+void BubbleBobbleGame::ParseEnemyData()
+{
+}
+
+void BubbleBobbleGame::LoadMenuScene()
+{
+	GameState& gs = GameState::GetInstance();
+
+	Scene& scene = m_SceneManager.CreateScene("MenuScene", true);
+
+	GameObject* pGo = m_GlobalMemoryPools.CreateGameObject();
+	pGo->GetTransform().SetPosition(gs.WindowWidth / 2.f, gs.WindowHeight / 2.f);
+	pGo->GetTransform().SetScale(2.f, 2.f);
+
+	Texture2DComponent* pTex = m_GlobalMemoryPools.CreateComponent<Texture2DComponent>();
+	pTex->SetTexture("TitleMenu.png");
+
+	pGo->AddComponent(pTex);
+
+	scene.AddObject(pGo);
+
+	TextObject* pTo = m_GlobalMemoryPools.CreateTextObject("Press Enter to play", ResourceManager::GetInstance().LoadFont("Lingua.otf", 36));
+	pTo->GetTransform().SetScale(2.f, 2.f);
+	pTo->GetTransform().SetPosition(gs.WindowWidth / 4.f, gs.WindowHeight / 2.f + 25.f);
+	pTo->SetColour(RGBAColour{ 255, 0, 255, 255 });
+
+	scene.AddObject(pTo);
+
+	pTo = m_GlobalMemoryPools.CreateTextObject("Press Start to play", ResourceManager::GetInstance().LoadFont("Lingua.otf", 36));
+	pTo->GetTransform().SetScale(2.f, 2.f);
+	pTo->GetTransform().SetPosition(gs.WindowWidth / 4.f, gs.WindowHeight / 2.f - 25.f);
+	pTo->SetColour(RGBAColour{ 255, 0, 255, 255 });
+
+	scene.AddObject(pTo);
+}
+
+void BubbleBobbleGame::LoadPauseScene()
+{
+	GameState& gs = GameState::GetInstance();
+
+	Scene& scene = m_SceneManager.CreateScene("PauseScene", false);
+
+	TextObject* pTo = m_GlobalMemoryPools.CreateTextObject("Game Paused", ResourceManager::GetInstance().LoadFont("Lingua.otf", 36));
+	pTo->GetTransform().SetScale(2.f, 2.f);
+	pTo->GetTransform().SetPosition(gs.WindowWidth / 4.f, gs.WindowHeight / 2.f + 25.f);
+	pTo->SetColour(RGBAColour{ 255, 0, 255, 255 }); //pink
+
+	scene.AddObject(pTo);
+
+	pTo = m_GlobalMemoryPools.CreateTextObject("Press P/Select to resume", ResourceManager::GetInstance().LoadFont("Lingua.otf", 36));
+	pTo->GetTransform().SetScale(2.f, 2.f);
+	pTo->GetTransform().SetPosition(gs.WindowWidth / 4.f, gs.WindowHeight / 2.f - 25.f);
+	pTo->SetColour(RGBAColour{ 255, 0, 255, 255 }); //pink
+
+	scene.AddObject(pTo);
 }
 
 void BubbleBobbleGame::Archive()

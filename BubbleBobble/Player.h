@@ -33,8 +33,17 @@ public:
 		Bubble,
 		Spawn,
 	};
+	enum class Playables
+	{
+		Bub,
+		Bob,
+		Maita,
+	};
+	void SetCharacter(Playables character);
+	Playables GetCharacter() const;
 
 protected:
+	Playables m_Player;
 	float m_Speed;
 	float m_JumpForce;
 	SpriteComponent* m_pSprites;

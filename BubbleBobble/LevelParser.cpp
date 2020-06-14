@@ -2,22 +2,17 @@
 #include "LevelParser.h"
 
 LevelParser::LevelParser()
-    : m_Reader{}
-    , m_Levels{}
+    : m_Levels{}
 {}
 
 LevelParser::~LevelParser()
 {
-    m_Reader.close();
     m_Levels.clear();
 }
 
-void LevelParser::Read(const std::string& file)
+void LevelParser::Parse(const std::string& file)
 {
-	m_Reader.open("../Data/Levels/" + file, std::ios::in | std::ios::binary);
-
-    if (!m_Reader.is_open())
-        return;
+    OpenFile("../Data/Levels/" + file);
 
     for (int level{}; level < m_Amount; ++level)
     {
@@ -26,12 +21,8 @@ void LevelParser::Read(const std::string& file)
         //12345678 12345678 12345678 12345678 for 1 line do this times 25 for a level
         for (int l{}; l < 25 * 4; ++l)
         {
-                if (!m_Reader.good())
-                    break;
-                //read in current line
                 byte b{};
-                m_Reader.read((char*)&b, sizeof(byte));
-                //store line (25 per level)
+                b = Read<byte>();
                 bytes.push_back(b);
         }
         //create level from 25 * 4 bytes
@@ -44,7 +35,7 @@ void LevelParser::AddLevel(std::vector<byte>& bytes)
 {
     LevelTiles level{};
     const int size{ (int)bytes.size() };//100
-    int idY{ LevelTiles::Height - 1 };//reverse Y, X stays the same (flip level vertically, correct side up)
+    int idY{ LevelTiles::Rows - 1 };//reverse Y, X stays the same (flip level vertically, correct side up)
     int b{};
     while (b < size)
     {
